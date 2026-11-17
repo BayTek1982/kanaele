@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meine YouTube-Kanäle</title>
+<meta name="theme-color" content="#0f0f0f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kanäle">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0d12; --card:#11161e; --card2:#1a212c; --line:#232c3a; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace; --text:#f1f1f1; --muted:#a8a8a8;
+  --red:#ff0033; --red2:#cc0029; --gold:#ffc83d; --ok:#2fbf71;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+header{position:sticky;top:0;z-index:5;background:rgba(10,13,18,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 14px 10px}
+.top{display:flex;align-items:center;gap:10px;max-width:1100px;margin:0 auto}
+.logo{width:38px;height:27px;border-radius:8px;background:var(--red);display:grid;place-items:center;flex:none}
+.logo:after{content:"";border-left:11px solid #fff;border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px}
+h1{font-family:var(--mono);letter-spacing:-.02em;font-size:18px;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status{font-size:11px;color:var(--muted)}
+.btn{border:0;border-radius:999px;padding:9px 15px;background:var(--card2);cursor:pointer;white-space:nowrap}
+.btn:hover{background:#333}
+.btn.red{background:var(--red);color:#fff;font-weight:600}
+.btn.red:hover{background:var(--red2)}
+.btn.small{padding:6px 11px;font-size:13px}
+.controls{max-width:1100px;margin:10px auto 0;display:flex;gap:8px;flex-wrap:wrap}
+.search{flex:1 1 220px;display:flex;align-items:center;background:#121212;border:1px solid var(--line);border-radius:999px;padding:0 12px}
+.search input{flex:1;border:0;background:transparent;padding:9px 6px;outline:none}
+.searchwrap{position:relative;flex:1 1 220px;display:flex}
+.suggest{position:absolute;left:0;right:0;top:46px;background:#212121;border:1px solid var(--line);border-radius:14px;padding:6px;max-height:min(65vh,460px);overflow:auto;z-index:12;display:none;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.suggest.show{display:block}
+.sgh{font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:8px 10px 4px}
+.sgi{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:8px 10px;border-radius:9px;cursor:pointer;text-align:left}
+.sgi:hover{background:#333}
+.sgi .dot{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;color:#fff;flex:none}
+.sgi .t{flex:1;min-width:0}
+.sgi .t b{font-weight:600}
+.sgi .t small{display:block;color:var(--muted);font-size:12px}
+.sgi .plus{font-size:12px;background:var(--red);color:#fff;border-radius:999px;padding:3px 9px;white-space:nowrap}
+.sgi .have{font-size:12px;color:var(--ok);white-space:nowrap}
+.sgcats{display:flex;flex-wrap:wrap;gap:6px;padding:4px 8px 6px}
+select{background:var(--card2);border:0;border-radius:999px;padding:9px 12px;cursor:pointer}
+.chips{max-width:1100px;margin:10px auto 0;display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chip{border:0;border-radius:8px;padding:6px 12px;background:var(--card2);cursor:pointer;white-space:nowrap;font-size:14px}
+.chip.on{background:var(--text);color:#0f0f0f;font-weight:600}
+main{max-width:1100px;margin:0 auto;padding:14px}
+.bento{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:640px){.bento{grid-template-columns:repeat(2,1fr)}}
+.tile{background:linear-gradient(160deg,#141b26,#0e131a);border:1px solid var(--line);border-radius:16px;padding:12px 14px;position:relative;overflow:hidden}
+.tile:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--acc)}
+.tile .k{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.tile .v{font-family:var(--mono);font-size:26px;font-weight:700;margin-top:2px;color:var(--acc)}
+.tile .s{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .bar{position:absolute;left:0;right:0;top:0;height:3px}
+.info{color:var(--muted);font-size:13px;margin:0 2px 10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.card{position:relative;overflow:hidden;background:linear-gradient(180deg,#131a24,#0f141b);border:1px solid var(--line);border-radius:14px;padding:13px;display:flex;flex-direction:column;gap:9px}
+.row{display:flex;gap:11px;align-items:center}
+.avatar{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:21px;flex:none;color:#fff}
+.name{font-family:var(--mono);font-weight:700;letter-spacing:-.01em;font-size:16px;word-break:break-word}
+.meta{font-size:12.5px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.badge{background:#333;border-radius:6px;padding:1px 7px;color:#ddd}
+.stars{color:var(--gold);letter-spacing:1px;font-size:14px}
+.stars .off{color:#555}
+.fav{margin-left:auto;background:none;border:0;font-size:22px;cursor:pointer;color:#555;padding:2px 4px;line-height:1}
+.fav.on{color:var(--gold)}
+.note{font-size:13.5px;color:#cfcfcf;background:#151515;border-radius:8px;padding:7px 9px;white-space:pre-wrap;word-break:break-word}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.actions a{text-decoration:none}
+a.btn{color:var(--text);display:inline-block}
+a.btn.red{color:#fff}
+.empty{text-align:center;padding:40px 16px;color:var(--muted)}
+.empty h2{color:var(--text);font-size:19px;margin:0 0 6px}
+/* Dialog */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:flex-end;justify-content:center;z-index:20}
+.overlay.show{display:flex}
+@media(min-width:640px){.overlay{align-items:center}}
+.dialog{background:#212121;width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:18px;max-height:92vh;overflow:auto}
+@media(min-width:640px){.dialog{border-radius:18px}}
+.dialog h2{margin:0 0 12px;font-size:18px}
+label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+.field{width:100%;background:#121212;border:1px solid var(--line);border-radius:10px;padding:10px 11px;outline:none}
+.field:focus{border-color:#666}
+textarea.field{min-height:70px;resize:vertical}
+.hint{font-size:12px;color:var(--muted);margin-top:4px}
+.starpick button{background:none;border:0;font-size:28px;color:#555;cursor:pointer;padding:0 2px}
+.starpick button.on{color:var(--gold)}
+.dlgbtns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.check{display:flex;align-items:center;gap:8px;margin-top:12px;color:var(--text);font-size:14px}
+.check input{width:18px;height:18px;accent-color:var(--red)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#f1f1f1;color:#0f0f0f;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:30;max-width:90vw;text-align:center}
+.toast.show{opacity:1}
+.menuwrap{position:relative}
+.menu{position:absolute;right:0;top:44px;background:#282828;border:1px solid var(--line);border-radius:12px;padding:6px;display:none;min-width:220px;z-index:10}
+.menu.show{display:block}
+.menu button{display:block;width:100%;text-align:left;background:none;border:0;padding:10px 12px;border-radius:8px;cursor:pointer}
+.menu button:hover{background:#3a3a3a}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div class="logo" aria-hidden="true"></div>
+    <div style="flex:1;min-width:0">
+      <h1>Meine YouTube-Kanäle</h1>
+      <div class="status" id="status">Wird geladen …</div>
+    </div>
+    <button class="btn red" id="addBtn">+ Kanal</button>
+    <div class="menuwrap">
+      <button class="btn" id="menuBtn" aria-label="Menü">⋮</button>
+      <div class="menu" id="menu">
+        <button data-act="export">📋 Liste kopieren (Sicherung)</button>
+        <button data-act="import">📥 Liste einfügen (Wiederherstellen)</button>
+      </div>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="searchwrap">
+      <div class="search" style="flex:1">🔍<input id="q" type="search" placeholder="Suchen, z. B. Finanzfluss …" autocomplete="off"></div>
+      <div class="suggest" id="suggest"></div>
+    </div>
+    <select id="sort" aria-label="Sortieren">
+      <option value="name">Name A–Z</option>
+      <option value="nameDesc">Name Z–A</option>
+      <option value="rating">Beste Bewertung</option>
+      <option value="new">Zuletzt hinzugefügt</option>
+      <option value="opened">Zuletzt geöffnet</option>
+      <option value="count">Am meisten geöffnet</option>
+    </select>
+  </div>
+  <div class="chips" id="chips"></div>
+</header>
+
+<main>
+  <div class="bento" id="bento"></div>
+  <div class="info" id="info"></div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" hidden></div>
+</main>
+
+<!-- Kanal-Dialog -->
+<div class="overlay" id="dlg">
+  <form class="dialog" id="form">
+    <h2 id="dlgTitle">Kanal hinzufügen</h2>
+    <label for="fName">Name des Kanals *</label>
+    <input class="field" id="fName" required maxlength="80" placeholder="z. B. Simplicissimus">
+    <label for="fLink">Link oder @Name</label>
+    <input class="field" id="fLink" maxlength="300" placeholder="https://www.youtube.com/@… oder @kanalname">
+    <div class="hint">Tipp: In der YouTube-App beim Kanal auf „Teilen“ → „Link kopieren“ und hier einfügen. Leer lassen = YouTube-Suche nach dem Namen.</div>
+    <label for="fCat">Kategorie</label>
+    <input class="field" id="fCat" list="catList" maxlength="40" placeholder="z. B. Börse, Kochen, Musik, Kinder">
+    <datalist id="catList"></datalist>
+    <label>Bewertung</label>
+    <div class="starpick" id="starpick"></div>
+    <label for="fNote">Notiz</label>
+    <textarea class="field" id="fNote" maxlength="500" placeholder="z. B. Neue Videos immer sonntags"></textarea>
+    <label class="check"><input type="checkbox" id="fFav"> ⭐ Als Favorit markieren</label>
+    <div class="dlgbtns">
+      <button type="button" class="btn" id="delBtn" style="margin-right:auto;color:#ff6b81" hidden>Löschen</button>
+      <button type="button" class="btn" data-close>Abbrechen</button>
+      <button type="submit" class="btn red">Speichern</button>
+    </div>
+  </form>
+</div>
+
+<!-- Bestätigen -->
+<div class="overlay" id="confirmDlg">
+  <div class="dialog">
+    <h2 id="confirmText">Wirklich löschen?</h2>
+    <div class="dlgbtns">
+      <button class="btn" data-close>Abbrechen</button>
+      <button class="btn red" id="confirmYes">Ja, löschen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sicherung -->
+<div class="overlay" id="ioDlg">
+  <div class="dialog">
+    <h2 id="ioTitle">Sicherung</h2>
+    <div class="hint" id="ioHint"></div>
+    <textarea class="field" id="ioText" style="min-height:160px;margin-top:10px;font-size:12px"></textarea>
+    <input type="file" id="ioFile" accept=".json,.txt,application/json" style="margin-top:10px;font-size:13px">
+    <div class="dlgbtns">
+      <button class="btn" data-close>Schließen</button>
+      <button class="btn" id="ioSave">💾 Als Datei speichern</button>
+      <button class="btn red" id="ioAction">Kopieren</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const LS_KEY = "bayazit-yt-kanaele";
+  let items = [];
+  let mode = "loading";      // loading | cloud | local
+  let col = null;            // db collection
+  let activeCat = "Alle";
+  let editId = null;
+  let pickRating = 0;
+  let confirmCb = null;
+
+  // ---------- Hilfen ----------
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),2600); }
+  function newId(){ return "k" + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+  const COLORS = ["#e53935","#d81b60","#8e24aa","#5e35b1","#3949ab","#1e88e5","#00897b","#43a047","#f4511e","#6d4c41","#546e7a","#c0ca33"];
+  function colorFor(name){ let h=0; for(const ch of String(name)) h=(h*31+ch.charCodeAt(0))>>>0; return COLORS[h%COLORS.length]; }
+
+  // Link aus Eingabe bauen
+  function buildUrl(link, name){
+    let l = (link||"").trim();
+    if(!l) return "https://www.youtube.com/results?search_query=" + encodeURIComponent(name) + "&sp=EgIQAg%253D%253D";
+    if(l.startsWith("@")) return "https://www.youtube.com/" + encodeURIComponent(l.slice(1)).replace(/^/,"@");
+    if(/^(www\.|m\.)?youtube\.com\//i.test(l) || /^youtu\.be\//i.test(l)) l = "https://" + l;
+    if(/^https?:\/\//i.test(l)){
+      try{ const u=new URL(l); if(/(^|\.)youtube\.com$|(^|\.)youtu\.be$/i.test(u.hostname)) { u.hostname = u.hostname.replace(/^m\./,"www."); return u.toString(); } }catch(e){}
+      return l;
+    }
+    if(/^[\w.\-]+$/.test(l)) return "https://www.youtube.com/@" + l;
+    return "https://www.youtube.com/results?search_query=" + encodeURIComponent(l);
+  }
+  function isChannelUrl(u){ return /youtube\.com\/(@|channel\/|c\/|user\/)/i.test(u); }
+  function channelBase(u){
+    try{ const x=new URL(u); const p=x.pathname.split("/").filter(Boolean);
+      if(p[0] && p[0].startsWith("@")) return x.origin+"/"+p[0];
+      if(["channel","c","user"].includes(p[0]) && p[1]) return x.origin+"/"+p[0]+"/"+p[1];
+    }catch(e){}
+    return null;
+  }
+
+  // ---------- Speicher ----------
+  function loadLocal(){
+    try{ const raw=localStorage.getItem(LS_KEY); items = raw ? JSON.parse(raw) : []; }catch(e){ items=[]; }
+    if(!Array.isArray(items)) items=[];
+  }
+  function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(items)); }catch(e){} }
+
+  function useLocal(reason){
+    mode="local"; loadLocal();
+    $("status").textContent = "Gespeichert auf diesem Gerät – Sicherung über ⋮";
+    render();
+  }
+
+  async function saveItem(it){
+    const clean = {...it}; delete clean.id;
+    if(mode==="cloud" && col){
+      const i = items.findIndex(x=>x.id===it.id);
+      if(i>=0) items[i]=it; else items.push(it);
+      render();
+      try{ await col.doc(it.id).set(clean); }
+      catch(e){ toast(e && e.code==="quota_exceeded" ? "Speicher voll – bitte alte Kanäle löschen." : "Konnte nicht speichern. Bitte nochmal versuchen."); }
+    } else {
+      const i = items.findIndex(x=>x.id===it.id);
+      if(i>=0) items[i]=it; else items.push(it);
+      saveLocal(); render();
+    }
+  }
+  async function removeItem(id){
+    items = items.filter(x=>x.id!==id);
+    render();
+    if(mode==="cloud" && col){ try{ await col.doc(id).delete(); }catch(e){ toast("Löschen hat nicht geklappt."); } }
+    else saveLocal();
+  }
+
+  async function initStore(){
+    loadLocal(); render();
+    if(!(window.claude && typeof window.claude.use==="function")){ useLocal(); return; }
+    try{
+      const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+      const uid = user ? await user.id() : null;
+      if(!db || !uid){ useLocal(); return; }
+      col = db.collection("data/users/" + uid);
+      mode = "cloud";
+      $("status").textContent = "Wird geladen …";
+      const timer = setTimeout(()=>{ $("status").textContent = "Verbindung langsam – Daten evtl. nicht aktuell"; }, 10000);
+      let migrated = false;
+      col.onSnapshot(snap=>{
+        items = snap.docs.map(d=>({id:d.id, ...d.data()}));
+        if(!snap.metadata.fromCache){
+          clearTimeout(timer);
+          $("status").textContent = "☁️ Gespeichert in deinem Konto – auf allen Geräten";
+          // Einmalig: lokale Kanäle von früher übernehmen
+          if(!migrated){ migrated=true; migrateLocal(); }
+        }
+        render();
+      }, err=>{
+        clearTimeout(timer);
+        col=null; useLocal("Online-Speicher nicht erreichbar");
+      });
+    }catch(e){ useLocal(); }
+  }
+  async function migrateLocal(){
+    let old=[]; try{ old=JSON.parse(localStorage.getItem(LS_KEY)||"[]"); }catch(e){}
+    if(!Array.isArray(old) || !old.length) return;
+    const have = new Set(items.map(x=>x.id));
+    for(const it of old){ if(it && it.id && !have.has(it.id)){ try{ const c={...it}; delete c.id; await col.doc(it.id).set(c); }catch(e){ return; } } }
+    try{ localStorage.removeItem(LS_KEY); }catch(e){}
+  }
+
+  // ---------- Anzeige ----------
+  function categories(){
+    const s=new Set(); items.forEach(i=>{ if(i.cat) s.add(i.cat); });
+    return [...s].sort((a,b)=>a.localeCompare(b,"de"));
+  }
+  function renderChips(){
+    const cats = categories();
+    if(activeCat!=="Alle" && activeCat!=="⭐ Favoriten" && !cats.includes(activeCat)) activeCat="Alle";
+    const list = ["Alle","⭐ Favoriten",...cats];
+    $("chips").innerHTML = list.map(c=>`<button class="chip ${c===activeCat?"on":""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
+    $("catList").innerHTML = cats.map(c=>`<option value="${esc(c)}">`).join("");
+  }
+  function starsHtml(n){ n=Number(n)||0; if(!n) return ""; let s=""; for(let i=1;i<=5;i++) s+= i<=n ? "★" : '<span class="off">★</span>'; return `<span class="stars">${s}</span>`; }
+  function fmtDate(ts){ if(!ts) return ""; const d=new Date(ts); return d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"2-digit"}); }
+
+  function render(){
+    renderChips();
+    const q = $("q").value.trim().toLowerCase();
+    let list = items.filter(i=>{
+      if(activeCat==="⭐ Favoriten" && !i.fav) return false;
+      if(activeCat!=="Alle" && activeCat!=="⭐ Favoriten" && i.cat!==activeCat) return false;
+      if(!q) return true;
+      return [i.name,i.cat,i.note,i.link].some(v=>String(v||"").toLowerCase().includes(q));
+    });
+    const s = $("sort").value;
+    const byName=(a,b)=>String(a.name).localeCompare(String(b.name),"de",{sensitivity:"base"});
+    list.sort((a,b)=>{
+      if(s==="name") return byName(a,b);
+      if(s==="nameDesc") return byName(b,a);
+      if(s==="rating") return (b.rating||0)-(a.rating||0) || byName(a,b);
+      if(s==="new") return (b.added||0)-(a.added||0);
+      if(s==="opened") return (b.lastOpened||0)-(a.lastOpened||0) || byName(a,b);
+      if(s==="count") return (b.opens||0)-(a.opens||0) || byName(a,b);
+      return 0;
+    });
+    // Favoriten zuerst (außer bei reiner Namenssortierung nicht nötig) – immer oben
+    list.sort((a,b)=>(b.fav?1:0)-(a.fav?1:0));
+
+    const favs=items.filter(i=>i.fav).length, cs=categories().length;
+    const top=[...items].sort((a,b)=>(b.opens||0)-(a.opens||0))[0];
+    $("bento").innerHTML = items.length ? `
+      <div class="tile" style="--acc:#ff3355"><div class="k">Kanäle</div><div class="v">${items.length}</div><div class="s">gespeichert</div></div>
+      <div class="tile" style="--acc:#ffc83d"><div class="k">Favoriten</div><div class="v">${favs}</div><div class="s">mit Stern</div></div>
+      <div class="tile" style="--acc:#3dd6c6"><div class="k">Kategorien</div><div class="v">${cs}</div><div class="s">${esc(categories().slice(0,3).join(", ")||"–")}</div></div>
+      <div class="tile" style="--acc:#8f7bff"><div class="k">Meist geöffnet</div><div class="v">${top&&top.opens?top.opens+"×":"–"}</div><div class="s">${top&&top.opens?esc(top.name):"noch nichts"}</div></div>` : "";
+    $("info").textContent = items.length ? `${list.length} von ${items.length} Kanälen` : "";
+    $("grid").innerHTML = list.map(cardHtml).join("");
+
+    const empty=$("empty");
+    if(mode==="loading" && !items.length){ empty.hidden=false; empty.innerHTML="<p>Wird geladen …</p>"; }
+    else if(!items.length){
+      empty.hidden=false;
+      empty.innerHTML = `<h2>Noch keine Kanäle gespeichert</h2><p>Tippe auf <b>„+ Kanal“</b>, um deinen ersten Lieblingskanal hinzuzufügen.</p><button class="btn red" data-act="add">+ Ersten Kanal hinzufügen</button>`;
+    } else if(!list.length){
+      empty.hidden=false;
+      const qq=$("q").value.trim();
+      empty.innerHTML = `<h2>Nichts gefunden</h2>` + (qq ? `<p>Kein gespeicherter Kanal passt zu „${esc(qq)}“.</p>
+        <p><a class="btn red" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(qq)}&sp=EgIQAg%253D%253D">„${esc(qq)}“ auf YouTube suchen</a></p>
+        <p><button class="btn" data-act="addFromSearch">„${esc(qq)}“ als neuen Kanal anlegen</button></p>` : "<p>In dieser Kategorie gibt es noch keine Kanäle.</p>");
+    } else empty.hidden=true;
+  }
+
+  function cardHtml(i){
+    const url = i.url || buildUrl(i.link, i.name);
+    const base = channelBase(url);
+    const initial = (String(i.name).trim()[0]||"?").toUpperCase();
+    const meta = [];
+    if(i.cat) meta.push(`<span class="badge">${esc(i.cat)}</span>`);
+    const st = starsHtml(i.rating); if(st) meta.push(st);
+    if(i.opens) meta.push(`${i.opens}× geöffnet`);
+    if(i.lastOpened) meta.push(`zuletzt ${fmtDate(i.lastOpened)}`);
+    return `<div class="card"><div class="bar" style="background:${colorFor(i.cat||i.name)}"></div>
+      <div class="row">
+        <div class="avatar" style="background:${colorFor(i.name)}">${esc(initial)}</div>
+        <div style="min-width:0;flex:1">
+          <div class="name">${esc(i.name)}</div>
+          <div class="meta">${meta.join("")}</div>
+        </div>
+        <button class="fav ${i.fav?"on":""}" data-fav="${esc(i.id)}" aria-label="Favorit">★</button>
+      </div>
+      ${i.note?`<div class="note">${esc(i.note)}</div>`:""}
+      <div class="actions">
+        <a class="btn red small" data-open="${esc(i.id)}" href="${esc(url)}" target="_blank" rel="noopener">▶ Kanal öffnen</a>
+        ${base?`<a class="btn small" data-open="${esc(i.id)}" href="${esc(base)}/videos" target="_blank" rel="noopener">Neueste Videos</a>
+        <a class="btn small" data-open="${esc(i.id)}" href="${esc(base)}/streams" target="_blank" rel="noopener">Live</a>`:""}
+        <button class="btn small" data-copy="${esc(i.id)}">🔗 Link</button>
+        <button class="btn small" data-edit="${esc(i.id)}">✏️</button>
+      </div>
+    </div>`;
+  }
+
+  // ---------- Dialog ----------
+  function drawStars(){
+    $("starpick").innerHTML = [1,2,3,4,5].map(n=>`<button type="button" data-star="${n}" class="${n<=pickRating?"on":""}" aria-label="${n} Sterne">★</button>`).join("");
+  }
+  function openDlg(id, presetName){
+    editId = id || null;
+    const it = id ? items.find(x=>x.id===id) : null;
+    $("dlgTitle").textContent = it ? "Kanal bearbeiten" : "Kanal hinzufügen";
+    $("fName").value = it ? it.name : (presetName||"");
+    $("fLink").value = it ? (it.link||"") : "";
+    $("fCat").value = it ? (it.cat||"") : (activeCat!=="Alle" && activeCat!=="⭐ Favoriten" ? activeCat : "");
+    $("fNote").value = it ? (it.note||"") : "";
+    $("fFav").checked = it ? !!it.fav : activeCat==="⭐ Favoriten";
+    pickRating = it ? (it.rating||0) : 0;
+    drawStars();
+    $("delBtn").hidden = !it;
+    $("dlg").classList.add("show");
+    setTimeout(()=>$("fName").focus(),50);
+  }
+  function closeAll(){ document.querySelectorAll(".overlay").forEach(o=>o.classList.remove("show")); }
+
+  // Name automatisch aus @Link vorschlagen
+  $("fLink").addEventListener("blur",()=>{
+    if($("fName").value.trim()) return;
+    const m = $("fLink").value.match(/@([\w.\-]+)/);
+    if(m) $("fName").value = m[1];
+  });
+
+  $("form").addEventListener("submit", e=>{
+    e.preventDefault();
+    const name=$("fName").value.trim(); if(!name){ $("fName").focus(); return; }
+    const link=$("fLink").value.trim();
+    const old = editId ? items.find(x=>x.id===editId) : null;
+    const it = {
+      ...(old||{}),
+      id: old ? old.id : newId(),
+      name, link,
+      url: buildUrl(link, name),
+      cat: $("fCat").value.trim(),
+      note: $("fNote").value.trim(),
+      rating: pickRating,
+      fav: $("fFav").checked,
+      added: old ? (old.added||Date.now()) : Date.now()
+    };
+    closeAll();
+    saveItem(it);
+    toast(old ? "Änderungen gespeichert" : "„"+name+"“ hinzugefügt");
+  });
+
+  $("delBtn").addEventListener("click",()=>{
+    const it = items.find(x=>x.id===editId); if(!it) return;
+    closeAll();
+    askConfirm(`„${it.name}“ wirklich löschen?`, ()=>{ removeItem(it.id); toast("Gelöscht"); });
+  });
+  function askConfirm(text, cb){ $("confirmText").textContent=text; confirmCb=cb; $("confirmDlg").classList.add("show"); }
+  $("confirmYes").addEventListener("click",()=>{ const cb=confirmCb; confirmCb=null; closeAll(); if(cb) cb(); });
+
+  // ---------- Klicks ----------
+  document.addEventListener("click", e=>{
+    const t = e.target.closest("[data-close],[data-cat],[data-fav],[data-edit],[data-copy],[data-open],[data-star],[data-act]");
+    if(e.target.classList.contains("overlay")) { closeAll(); return; }
+    if(!e.target.closest(".menuwrap")) $("menu").classList.remove("show");
+    if(!t) return;
+    if(t.dataset.close!==undefined){ closeAll(); return; }
+    if(t.dataset.cat){ activeCat=t.dataset.cat; render(); return; }
+    if(t.dataset.star){ pickRating = (pickRating===+t.dataset.star) ? 0 : +t.dataset.star; drawStars(); return; }
+    if(t.dataset.fav){ const it=items.find(x=>x.id===t.dataset.fav); if(it) saveItem({...it, fav:!it.fav}); return; }
+    if(t.dataset.edit){ openDlg(t.dataset.edit); return; }
+    if(t.dataset.copy){
+      const it=items.find(x=>x.id===t.dataset.copy); if(!it) return;
+      const u = it.url || buildUrl(it.link,it.name);
+      navigator.clipboard && navigator.clipboard.writeText(u).then(()=>toast("Link kopiert – z. B. per WhatsApp teilen"),()=>toast(u));
+      return;
+    }
+    if(t.dataset.open){
+      const it=items.find(x=>x.id===t.dataset.open);
+      if(it) saveItem({...it, opens:(it.opens||0)+1, lastOpened:Date.now()});
+      return; // Link öffnet sich normal
+    }
+    const act=t.dataset.act;
+    if(act==="add"){ openDlg(); }
+    else if(act==="addFromSearch"){ openDlg(null, $("q").value.trim()); }
+    else if(act==="export"){ $("menu").classList.remove("show"); openIO("export"); }
+    else if(act==="import"){ $("menu").classList.remove("show"); openIO("import"); }
+  });
+  $("addBtn").addEventListener("click",()=>openDlg());
+  $("menuBtn").addEventListener("click",e=>{ e.stopPropagation(); $("menu").classList.toggle("show"); });
+  $("q").addEventListener("input", render);
+  $("sort").addEventListener("change", ()=>{ try{ localStorage.setItem(LS_KEY+"-sort",$("sort").value); }catch(e){} render(); });
+  try{ const s=localStorage.getItem(LS_KEY+"-sort"); if(s) $("sort").value=s; }catch(e){}
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeAll(); });
+
+  // ---------- Vorschläge im Suchfeld ----------
+  const EXAMPLES = [
+    ["Finanzfluss","Börse"],["Finanztip","Börse"],["Mission Money","Börse"],["Aktien mit Kopf","Börse"],
+    ["Blocktrainer","Krypto"],["Coin Bureau","Krypto"],
+    ["tagesschau","Nachrichten"],["ZDFheute Nachrichten","Nachrichten"],
+    ["Simplicissimus","Wissen"],["MrWissen2go","Wissen"],["Terra X History","Wissen"],["Doktor Whatson","Wissen"],["maiLab","Wissen"],
+    ["Sallys Welt","Kochen"],["Chefkoch","Kochen"],
+    ["Die Sendung mit der Maus","Kinder"],["KiKA von ARD und ZDF","Kinder"],["Checker Tobi","Kinder"],
+    ["Sportschau","Fußball"],["FC Bayern München","Fußball"],["Bundesliga","Fußball"],
+    ["auto motor und sport","Auto"],["ADAC","Auto"],
+    ["Galileo","Unterhaltung"],["Y-Kollektiv","Reportagen"],["Reporter","Reportagen"]
+  ];
+  const sg = $("suggest");
+  function norm(s){ return String(s||"").toLowerCase(); }
+  function renderSuggest(){
+    const q = norm($("q").value.trim());
+    const savedNames = new Set(items.map(i=>norm(i.name)));
+    let h = "";
+
+    // Eigene Kanäle
+    const mine = q ? items.filter(i=>[i.name,i.cat,i.note].some(v=>norm(v).includes(q))).slice(0,5) : [];
+    if(mine.length){
+      h += `<div class="sgh">Deine Kanäle</div>` + mine.map(i=>`<button class="sgi" data-sgmine="${esc(i.name)}">
+        <span class="dot" style="background:${colorFor(i.name)}">${esc((i.name[0]||"?").toUpperCase())}</span>
+        <span class="t"><b>${esc(i.name)}</b>${i.cat?`<small>${esc(i.cat)}</small>`:""}</span></button>`).join("");
+    }
+
+    // Kategorien (eigene + Beispiel-Kategorien)
+    const allCats = [...new Set([...categories(), ...EXAMPLES.map(e=>e[1])])];
+    const cats = (q ? allCats.filter(c=>norm(c).includes(q)) : categories()).slice(0,10);
+    if(cats.length){
+      h += `<div class="sgh">Kategorien</div><div class="sgcats">` + cats.map(c=>`<button class="chip" data-sgcat="${esc(c)}">${esc(c)}</button>`).join("") + `</div>`;
+    }
+
+    // Beispiel-Kanäle
+    let ex = q ? EXAMPLES.filter(([n,c])=>norm(n).includes(q)||norm(c).includes(q)) : EXAMPLES.filter((e,i)=>i%2===0);
+    ex = ex.slice(0,8);
+    if(ex.length){
+      h += `<div class="sgh">${q?"Beispiel-Kanäle":"Beliebte Beispiele zum Hinzufügen"}</div>` + ex.map(([n,c])=>{
+        const have = savedNames.has(norm(n));
+        return `<button class="sgi" data-sgex="${esc(n)}" data-sgexcat="${esc(c)}">
+          <span class="dot" style="background:${colorFor(n)}">${esc(n[0].toUpperCase())}</span>
+          <span class="t"><b>${esc(n)}</b><small>${esc(c)}</small></span>
+          ${have?'<span class="have">✓ gespeichert</span>':'<span class="plus">+ Hinzufügen</span>'}</button>`;
+      }).join("");
+    }
+
+    // YouTube-Suche
+    if(q){
+      const raw=$("q").value.trim();
+      h += `<div class="sgh">Auf YouTube</div><a class="sgi" style="text-decoration:none;color:inherit" target="_blank" rel="noopener"
+        href="https://www.youtube.com/results?search_query=${encodeURIComponent(raw)}&sp=EgIQAg%253D%253D">
+        <span class="dot" style="background:var(--red)">▶</span><span class="t"><b>„${esc(raw)}“</b> auf YouTube suchen</span></a>`;
+    }
+    sg.innerHTML = h;
+    sg.classList.toggle("show", !!h);
+  }
+  function hideSuggest(){ sg.classList.remove("show"); }
+  $("q").addEventListener("focus", renderSuggest);
+  $("q").addEventListener("input", renderSuggest);
+  $("q").addEventListener("keydown", e=>{ if(e.key==="Enter"){ hideSuggest(); $("q").blur(); } });
+  document.addEventListener("click", e=>{
+    if(!e.target.closest(".searchwrap")) { hideSuggest(); return; }
+    const b = e.target.closest("[data-sgmine],[data-sgcat],[data-sgex]");
+    if(!b) return;
+    if(b.dataset.sgmine){ $("q").value=b.dataset.sgmine; activeCat="Alle"; render(); hideSuggest(); }
+    else if(b.dataset.sgcat){
+      $("q").value=""; activeCat=b.dataset.sgcat;
+      if(!categories().includes(activeCat)){ $("q").value=activeCat; activeCat="Alle"; }
+      render(); hideSuggest();
+    }
+    else if(b.dataset.sgex){
+      const name=b.dataset.sgex, cat=b.dataset.sgexcat;
+      hideSuggest();
+      const it = items.find(i=>norm(i.name)===norm(name));
+      if(it){ $("q").value=it.name; activeCat="Alle"; render(); return; }
+      openDlg(null, name); $("fCat").value=cat;
+    }
+  });
+  // Wechselnde Beispiele im Suchfeld
+  (function(){
+    const ph = ["Finanzfluss","Börse","Simplicissimus","Kochen","Sendung mit der Maus","Fußball","Blocktrainer","tagesschau"];
+    let i=0;
+    setInterval(()=>{ if(document.activeElement!==$("q") && !$("q").value){ i=(i+1)%ph.length; $("q").placeholder="Suchen, z. B. "+ph[i]+" …"; } },3000);
+  })();
+
+  // ---------- Sicherung ----------
+  let ioMode="export";
+  function openIO(m){
+    ioMode=m;
+    if(m==="export"){
+      $("ioTitle").textContent="Liste sichern";
+      $("ioHint").textContent="Das ist deine komplette Kanal-Liste. Tippe auf „Kopieren“ und speichere den Text z. B. in einer Notiz oder E-Mail.";
+      $("ioText").value=JSON.stringify(items.map(({id,name,link,url,cat,note,rating,fav,added})=>({id,name,link,url,cat,note,rating,fav,added})),null,1);
+      $("ioFile").hidden=true; $("ioAction").textContent="Kopieren"; $("ioSave").hidden=false;
+    } else {
+      $("ioTitle").textContent="Liste wiederherstellen";
+      $("ioHint").textContent="Füge hier eine gesicherte Liste ein (oder wähle eine Datei). Vorhandene Kanäle bleiben erhalten, neue kommen dazu.";
+      $("ioText").value=""; $("ioFile").hidden=false; $("ioFile").value=""; $("ioAction").textContent="Übernehmen"; $("ioSave").hidden=true;
+    }
+    $("ioDlg").classList.add("show");
+  }
+  $("ioFile").addEventListener("change",()=>{ const f=$("ioFile").files[0]; if(!f) return; f.text().then(t=>$("ioText").value=t); });
+  $("ioAction").addEventListener("click", async ()=>{
+    if(ioMode==="export"){
+      try{ await navigator.clipboard.writeText($("ioText").value); toast("Liste kopiert"); }
+      catch(e){ $("ioText").select(); toast("Bitte Text markieren und manuell kopieren"); }
+      return;
+    }
+    let data; try{ data=JSON.parse($("ioText").value); }catch(e){ toast("Das ist keine gültige Sicherung."); return; }
+    if(!Array.isArray(data)){ toast("Das ist keine gültige Sicherung."); return; }
+    const have=new Set(items.map(x=>x.id)); let n=0;
+    closeAll();
+    for(const r of data){
+      if(!r || !r.name) continue;
+      const id = (typeof r.id==="string" && /^[\w\-]{1,60}$/.test(r.id)) ? r.id : newId();
+      if(have.has(id)) continue;
+      const it={id,name:String(r.name).slice(0,80),link:String(r.link||"").slice(0,300),cat:String(r.cat||"").slice(0,40),note:String(r.note||"").slice(0,500),rating:Math.max(0,Math.min(5,+r.rating||0)),fav:!!r.fav,added:+r.added||Date.now()};
+      it.url=buildUrl(it.link,it.name);
+      await saveItem(it); n++;
+    }
+    toast(n ? `${n} Kanäle übernommen` : "Keine neuen Kanäle gefunden");
+  });
+
+  $("ioSave").addEventListener("click",()=>{
+    try{
+      const blob=new Blob([$("ioText").value],{type:"application/json"});
+      const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+      a.download="youtube-kanaele-"+new Date().toISOString().slice(0,10)+".json";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+      toast("Sicherung gespeichert");
+    }catch(e){ toast("Speichern nicht möglich – bitte „Kopieren“ nutzen"); }
+  });
+
+  initStore();
+  if("serviceWorker" in navigator && location.protocol==="https:"){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
+})();
+</script>
+</body>
+</html>
