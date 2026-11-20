@@ -98,6 +98,21 @@ textarea.field{min-height:70px;resize:vertical}
 .check input{width:18px;height:18px;accent-color:var(--red)}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#f1f1f1;color:#0f0f0f;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:30;max-width:90vw;text-align:center}
 .toast.show{opacity:1}
+.openmode{display:flex;background:var(--card2);border-radius:999px;padding:3px;gap:2px}
+.openmode button{border:0;background:none;border-radius:999px;padding:6px 11px;cursor:pointer;font-size:13px;white-space:nowrap;color:var(--muted)}
+.openmode button.on{background:var(--red);color:#fff;font-weight:600}
+.choose a{display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;background:var(--card2);text-decoration:none;color:var(--text);margin-top:8px;font-weight:600}
+.choose a small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.choose .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:18px;color:#fff;flex:none}
+body.light{--bg:#f4f6f9;--card:#ffffff;--card2:#e9edf2;--line:#d8dee6;--text:#141a22;--muted:#5d6876}
+body.light header{background:rgba(244,246,249,.95)}
+body.light .card,body.light .tile{background:#fff}
+body.light .search,body.light .field,body.light .note{background:#fff;color:var(--text)}
+body.light .dialog,body.light .menu,body.light .suggest{background:#fff}
+body.light .btn:hover,body.light .menu button:hover,body.light .sgi:hover{background:#dde3ea}
+body.light .badge{background:#e4e9ef;color:#333}
+body.light .chip.on{background:#141a22;color:#fff}
+body.light .toast{background:#141a22;color:#fff}
 .menuwrap{position:relative}
 .menu{position:absolute;right:0;top:44px;background:#282828;border:1px solid var(--line);border-radius:12px;padding:6px;display:none;min-width:220px;z-index:10}
 .menu.show{display:block}
@@ -113,6 +128,7 @@ textarea.field{min-height:70px;resize:vertical}
       <h1>Meine YouTube-Kanäle</h1>
       <div class="status" id="status">Wird geladen …</div>
     </div>
+    <button class="btn" id="themeBtn" aria-label="Hell oder Dunkel">☀️</button>
     <button class="btn red" id="addBtn">+ Kanal</button>
     <div class="menuwrap">
       <button class="btn" id="menuBtn" aria-label="Menü">⋮</button>
@@ -126,6 +142,11 @@ textarea.field{min-height:70px;resize:vertical}
     <div class="searchwrap">
       <div class="search" style="flex:1">🔍<input id="q" type="search" placeholder="Suchen, z. B. Finanzfluss …" autocomplete="off"></div>
       <div class="suggest" id="suggest"></div>
+    </div>
+    <div class="openmode" id="openMode" title="Womit sollen Videos geöffnet werden?">
+      <button data-mode="youtube">▶ YouTube</button>
+      <button data-mode="opera">⭕ Opera</button>
+      <button data-mode="ask">❓ Fragen</button>
     </div>
     <select id="sort" aria-label="Sortieren">
       <option value="name">Name A–Z</option>
@@ -169,6 +190,16 @@ textarea.field{min-height:70px;resize:vertical}
       <button type="submit" class="btn red">Speichern</button>
     </div>
   </form>
+</div>
+
+<!-- Öffnen mit -->
+<div class="overlay" id="chooseDlg">
+  <div class="dialog choose">
+    <h2 id="chooseTitle">Öffnen mit …</h2>
+    <a id="chooseYt" target="_blank" rel="noopener"><span class="ic" style="background:#ff0033">▶</span><span>YouTube<small>In der YouTube-App (am PC: auf youtube.com)</small></span></a>
+    <a id="chooseOp" target="_blank" rel="noopener"><span class="ic" style="background:#ff1b2d">O</span><span>Opera<small>Mit Werbeblocker – ohne Werbung</small></span></a>
+    <div class="dlgbtns"><button class="btn" data-close>Abbrechen</button></div>
+  </div>
 </div>
 
 <!-- Bestätigen -->
@@ -240,6 +271,61 @@ textarea.field{min-height:70px;resize:vertical}
     }catch(e){}
     return null;
   }
+
+  // ---------- Öffnen mit YouTube oder Opera ----------
+  const UA = navigator.userAgent || "";
+  const isAndroid = /Android/i.test(UA);
+  const isOpera = /OPR\/|Opera/i.test(UA);
+  let openMode = "youtube";
+  try{ openMode = localStorage.getItem(LS_KEY+"-open") || "youtube"; }catch(e){}
+
+  function intentFor(url, pkg){
+    // Android: Link gezielt in einer App öffnen, sonst normale Seite als Ersatz
+    try{
+      const u = new URL(url);
+      return "intent://" + u.host + u.pathname + u.search + "#Intent;scheme=https;package=" + pkg +
+             ";S.browser_fallback_url=" + encodeURIComponent(url) + ";end";
+    }catch(e){ return url; }
+  }
+  function urlFor(url, target){
+    if(target==="opera") return isAndroid ? intentFor(url, "com.opera.browser") : url;
+    return isAndroid ? intentFor(url, "com.google.android.youtube") : url;
+  }
+  function linkFor(url){ return openMode==="ask" ? url : urlFor(url, openMode); }
+
+  function drawOpenMode(){
+    document.querySelectorAll("#openMode button").forEach(b=>b.classList.toggle("on", b.dataset.mode===openMode));
+  }
+  $("openMode").addEventListener("click", e=>{
+    const b = e.target.closest("button[data-mode]"); if(!b) return;
+    openMode = b.dataset.mode;
+    try{ localStorage.setItem(LS_KEY+"-open", openMode); }catch(e){}
+    drawOpenMode(); render();
+    if(openMode==="opera" && !isAndroid && !isOpera) toast("Am PC öffnet sich der Link im Browser dieser App – öffne die App dafür am besten in Opera.");
+    else toast(openMode==="ask" ? "Du wirst jedes Mal gefragt" : (openMode==="opera" ? "Videos öffnen sich in Opera" : "Videos öffnen sich in YouTube"));
+  });
+  let pendingOpenId = null;
+  function showChooser(url, id){
+    pendingOpenId = id;
+    $("chooseYt").href = urlFor(url, "youtube");
+    $("chooseOp").href = urlFor(url, "opera");
+    $("chooseDlg").classList.add("show");
+  }
+  ["chooseYt","chooseOp"].forEach(k=>$(k).addEventListener("click",()=>{
+    const it = items.find(x=>x.id===pendingOpenId);
+    setTimeout(closeAll, 100);
+    if(it) saveItem({...it, opens:(it.opens||0)+1, lastOpened:Date.now()});
+  }));
+
+  // ---------- Hell / Dunkel ----------
+  function applyTheme(t){
+    document.body.classList.toggle("light", t==="light");
+    $("themeBtn").textContent = t==="light" ? "🌙" : "☀️";
+    const m=document.querySelector('meta[name="theme-color"]'); if(m) m.content = t==="light" ? "#f4f6f9" : "#0a0d12";
+  }
+  let theme="dark"; try{ theme=localStorage.getItem(LS_KEY+"-theme")||"dark"; }catch(e){}
+  applyTheme(theme);
+  $("themeBtn").addEventListener("click",()=>{ theme = theme==="light"?"dark":"light"; try{ localStorage.setItem(LS_KEY+"-theme",theme); }catch(e){} applyTheme(theme); });
 
   // ---------- Speicher ----------
   function loadLocal(){
@@ -392,9 +478,9 @@ textarea.field{min-height:70px;resize:vertical}
       </div>
       ${i.note?`<div class="note">${esc(i.note)}</div>`:""}
       <div class="actions">
-        <a class="btn red small" data-open="${esc(i.id)}" href="${esc(url)}" target="_blank" rel="noopener">▶ Kanal öffnen</a>
-        ${base?`<a class="btn small" data-open="${esc(i.id)}" href="${esc(base)}/videos" target="_blank" rel="noopener">Neueste Videos</a>
-        <a class="btn small" data-open="${esc(i.id)}" href="${esc(base)}/streams" target="_blank" rel="noopener">Live</a>`:""}
+        <a class="btn red small" data-open="${esc(i.id)}" data-url="${esc(url)}" href="${esc(linkFor(url))}" target="_blank" rel="noopener">▶ Kanal öffnen</a>
+        ${base?`<a class="btn small" data-open="${esc(i.id)}" data-url="${esc(base)}/videos" href="${esc(linkFor(base+"/videos"))}" target="_blank" rel="noopener">Neueste Videos</a>
+        <a class="btn small" data-open="${esc(i.id)}" data-url="${esc(base)}/streams" href="${esc(linkFor(base+"/streams"))}" target="_blank" rel="noopener">Live</a>`:""}
         <button class="btn small" data-copy="${esc(i.id)}">🔗 Link</button>
         <button class="btn small" data-edit="${esc(i.id)}">✏️</button>
       </div>
@@ -476,6 +562,7 @@ textarea.field{min-height:70px;resize:vertical}
       return;
     }
     if(t.dataset.open){
+      if(openMode==="ask"){ e.preventDefault(); showChooser(t.dataset.url || t.href, t.dataset.open); return; }
       const it=items.find(x=>x.id===t.dataset.open);
       if(it) saveItem({...it, opens:(it.opens||0)+1, lastOpened:Date.now()});
       return; // Link öffnet sich normal
@@ -628,6 +715,7 @@ textarea.field{min-height:70px;resize:vertical}
     }catch(e){ toast("Speichern nicht möglich – bitte „Kopieren“ nutzen"); }
   });
 
+  drawOpenMode();
   initStore();
   if("serviceWorker" in navigator && location.protocol==="https:"){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
 })();
